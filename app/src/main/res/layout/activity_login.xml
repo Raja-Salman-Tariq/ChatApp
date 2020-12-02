@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/loginLinLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    tools:context=".LoginActivity">
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/loginUsername"
+        android:layout_width="212dp"
+        android:layout_height="43dp"
+        android:hint="Username"
+        android:layout_gravity="center"
+        android:textColor="#FAFAFA"
+        android:textColorHint="#FFFFFF" />
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/loginPassword"
+        android:layout_gravity="center"
+        android:layout_width="211dp"
+        android:layout_height="41dp"
+        android:hint="Password"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#FFFFFF" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/loginBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Login" />
+
+
+</LinearLayout>
