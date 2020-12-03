@@ -61,15 +61,17 @@ public class MyRvAdapter extends RecyclerView.Adapter<MyRvAdapter.MyViewHolder> 
                 return false;
             }
         });
-//        holder.itemView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent i=new Intent(c, ChatActivity.class);
-//                i.putExtra("rname", holder.name.getText());
-//                i.putExtra("uname",usr);
-//                c.startActivity(i);
-//            }
-//        });
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i=new Intent(c, ProfileActivity.class);
+                i.putExtra("name", holder.name.getText());
+                i.putExtra("status",holder.phno.getText());
+                i.putExtra("img", ls.get(position).getImage());
+//                i.put
+                c.startActivity(i);
+            }
+        });
     }
 
     @Override
@@ -84,7 +86,7 @@ public class MyRvAdapter extends RecyclerView.Adapter<MyRvAdapter.MyViewHolder> 
             super(itemView);
             rowDp=itemView.findViewById(R.id.rowDp);
             name=itemView.findViewById(R.id.namee);
-            phno=itemView.findViewById(R.id.phno);
+            phno=itemView.findViewById(R.id.phno);// this is status
             email=itemView.findViewById(R.id.email);
         }
 

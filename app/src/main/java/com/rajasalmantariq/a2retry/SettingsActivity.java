@@ -5,8 +5,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -27,7 +30,10 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayOutputStream;
+
 import de.hdodenhof.circleimageview.CircleImageView;
+import id.zelory.compressor.Compressor;
 
 public class SettingsActivity extends AppCompatActivity {
     DatabaseReference dbRef;
@@ -53,15 +59,43 @@ public class SettingsActivity extends AppCompatActivity {
         dbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String name= dataSnapshot.child("name").getValue().toString();
-                String img= dataSnapshot.child("image").getValue().toString();
-                String status= dataSnapshot.child("status").getValue().toString();
-                String thumb= dataSnapshot.child("thumbnail").getValue().toString();
+                String name= dataSnapshot.child("name").getValue(String.class);
+                Log.d("Setting name", name);
+                String img= dataSnapshot.child("image").getValue(String.class);
+                Log.d("Setting img", img);
+                String status= dataSnapshot.child("status").getValue(String.class);
+                Log.d("Setting status", status);
+                String thumb= dataSnapshot.child("thumbnail").getValue(String.class);
+                Log.d("Setting thumb", thumb+"was EMPTY !");
+
 
                 uName.setText(name);
                 uStatus.setText(status);
 //                uImage.set
-                Picasso.get().load(img).into(uImage);
+                if (img.equals("default")){
+                    Log.d("abc2", "entered if: ");
+
+                    StorageReference ref2 = FirebaseStorage.getInstance().getReference().child("profile_images").child("icon.png");
+                    ref2.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            final String dnldUrl1 = uri.toString();
+                            Log.d("abc2", "url rcvd in if: " + dnldUrl1);
+                            dbRef.child("image").setValue(dnldUrl1).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Picasso.get().load(dnldUrl1).into(uImage);
+                                }
+                            });
+                        }
+
+                    });
+//                    Picasso.get().load(img).into(uImage);
+                }
+
+                else{
+                    Picasso.get().load(img).into(uImage);
+                }
 
             }
 
@@ -88,8 +122,57 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        Log.d("abc2", "onActivityResult: ");
+
         if (resultCode==RESULT_OK && requestCode==200){
             Uri imgUri=data.getData();
+
+//            Bitmap myBmp= BitmapFactory.decodeFile(imgUri.getEncodedPath());
+            Bitmap myBmp=null;
+            try {
+                myBmp= MediaStore.Images.Media.getBitmap(this.getContentResolver(), imgUri);
+            }
+            catch (Exception e){}
+
+            myBmp= Bitmap.createScaledBitmap(myBmp, 200, 200, true);
+            ByteArrayOutputStream bos= new ByteArrayOutputStream();
+            myBmp.compress(Bitmap.CompressFormat.JPEG, 75, bos);
+            byte[] myBmpArr=bos.toByteArray();
+//            Bitmap compressedImageFile = Compressor.compress(SettingsActivity.this);//;{
+//                resolution(1280, 720);
+//                quality(80);
+//                format(Bitmap.CompressFormat.WEBP);
+//                size(2_097_152); // 2 MB
+//            };
+//            ByteArrayOutputStream baos= new ByteArrayOutputStream();
+//            compressedImageFile.compress()
+
+            StorageReference thumbRef=FirebaseStorage.getInstance().getReference().child("thumbs").child(user.getUid()+".jpg");
+            UploadTask uT=thumbRef.putBytes(myBmpArr);
+            uT.addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d("abc2", "onFailure: thumb uploading");
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+//                    final String thumbUrl;
+                    taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            dbRef.child("thumbnail").setValue(uri.toString());
+                        }
+                    });
+                }
+            });
+//            }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+//                @Override
+//                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+//                    String thumbUrl=task.getResult().getStorage().getDownloadUrl().toString();
+//                }
+//            });
+
             storageRef.putFile(imgUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -97,17 +180,45 @@ public class SettingsActivity extends AppCompatActivity {
                     taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                            String dnldUrl=uri.toString();
-                            Log.d("abc2", "url rcvd: "+dnldUrl);
-                            dbRef.child("image").setValue(dnldUrl).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()){
-//                                Picasso.with(SettingsActivity.this).load(dnldUrl).into(uImage);
-//                                Picasso.get().load(dnldUrl).into(uImage);
+                            final String dnldUrl = uri.toString();
+
+                            if (dnldUrl.equals( "default")) {
+                                StorageReference ref2 = FirebaseStorage.getInstance().getReference().child("profile_images").child("icon.png");
+                                ref2.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        final String dnldUrl1 = uri.toString();
+
+                                        Log.d("abc2", "url rcvd in if: " + dnldUrl1);
+                                        dbRef.child("image").setValue(dnldUrl1).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                Picasso.get().load(dnldUrl1).into(uImage);
+                                            }
+                                        });
                                     }
-                                }
-                            });
+
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d("abc2", "We have failed...: ");
+                                    }
+                                });
+                            }
+
+                            else {
+
+                                Log.d("abc2", "url rcvd: " + dnldUrl);
+                                dbRef.child("image").setValue(dnldUrl).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+//                                Picasso.with(SettingsActivity.this).load(dnldUrl).into(uImage);
+                                Picasso.get().load(dnldUrl).into(uImage);
+                                        }
+                                    }
+                                });
+                            }
                         }
                     });
                 }

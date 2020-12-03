@@ -1,16 +1,29 @@
 package com.rajasalmantariq.a2retry;
 
 public class Users {
-    String name, image, status;
+    String name;
+    String image;
+    String status;
+    String thumbnail;
+
+    public String getThumb() {
+        return thumbnail;
+    }
+
+    public void setThumb(String thumb) {
+        this.thumbnail = thumb;
+    }
+
 
     Users(){
 
     }
 
-    public Users(String name, String image, String status) {
+    public Users(String name, String image, String status, String thumb) {
         this.name = name;
         this.image = image;
         this.status = status;
+        this.thumbnail = thumb;
     }
 
     public void setName(String name) {

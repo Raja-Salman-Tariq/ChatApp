@@ -73,7 +73,7 @@ public class RegisterActivity extends AppCompatActivity {
 //                            map.put("email", email);
                             map.put("status", "Hi there ! Update me please !");
                             map.put("image", "default");
-                            map.put("thumbail", "default");
+                            map.put("thumbnail", "default");
 
                             dbRef.setValue(map);
 
