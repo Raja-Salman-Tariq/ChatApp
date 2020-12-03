@@ -7,6 +7,7 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hello World!"
@@ -17,18 +18,26 @@
 
     <Button
         android:id="@+id/logOutButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button Main"
-        tools:layout_editor_absoluteX="166dp"
-        tools:layout_editor_absoluteY="490dp" />
+        android:layout_width="208dp"
+        android:layout_height="57dp"
+        android:text="Logout"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="166dp" />
 
     <Button
         android:id="@+id/settingsButton"
+        android:layout_width="131dp"
+        android:layout_height="50dp"
+        android:text="Settings"
+        app:layout_constraintTop_toBottomOf="@+id/logOutButton"
+        tools:layout_editor_absoluteX="184dp" />
+
+    <Button
+        android:id="@+id/usersButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
-        tools:layout_editor_absoluteX="188dp"
-        tools:layout_editor_absoluteY="593dp" />
+        android:text="All Users"
+        app:layout_constraintTop_toBottomOf="@+id/settingsButton"
+        tools:layout_editor_absoluteX="184dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
