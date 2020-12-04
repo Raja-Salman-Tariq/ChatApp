@@ -23,7 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.HashMap;
 
 public class RegisterActivity extends AppCompatActivity {
-    AppCompatEditText uname, pwd, email;
+    AppCompatEditText uname, pwd, email, phno;
     AppCompatButton registerButton;
 
     FirebaseAuth authentication;
@@ -40,6 +40,7 @@ public class RegisterActivity extends AppCompatActivity {
         uname=findViewById(R.id.username);
         pwd=findViewById(R.id.password);
         email=findViewById(R.id.email);
+        phno=findViewById(R.id.registerPhno);
 
         registerButton.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -76,6 +77,9 @@ public class RegisterActivity extends AppCompatActivity {
                             map.put("thumbnail", "default");
 
                             dbRef.setValue(map);
+
+                            FirebaseDatabase.getInstance().getReference().child("number-user-map").
+                                    child(phno.getText().toString()).setValue(uid);
 
                             Intent intent=new Intent(RegisterActivity.this, MainActivity.class);
                             startActivity(intent);

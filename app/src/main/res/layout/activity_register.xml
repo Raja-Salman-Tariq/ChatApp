@@ -37,6 +37,14 @@
         android:textColor="#FFFFFF"
         android:textColorHint="#FFFFFF" />
 
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/registerPhno"
+        android:layout_width="170dp"
+        android:hint="phNo"
+        android:textColorHint="#FFFFFF"
+        android:textColor="#FFFFFF"
+        android:layout_height="wrap_content" />
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/registerButton"
         android:layout_width="wrap_content"

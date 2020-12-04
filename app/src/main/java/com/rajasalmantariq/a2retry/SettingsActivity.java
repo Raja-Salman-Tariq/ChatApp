@@ -28,6 +28,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
@@ -54,6 +56,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         user= FirebaseAuth.getInstance().getCurrentUser();
         dbRef= FirebaseDatabase.getInstance().getReference().child("users").child(user.getUid());
+        dbRef.keepSynced(true);
         storageRef= FirebaseStorage.getInstance().getReference().child("profile_images").child(user.getUid());
 
         dbRef.addValueEventListener(new ValueEventListener() {
@@ -61,7 +64,7 @@ public class SettingsActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String name= dataSnapshot.child("name").getValue(String.class);
                 Log.d("Setting name", name);
-                String img= dataSnapshot.child("image").getValue(String.class);
+                final String img= dataSnapshot.child("image").getValue(String.class);
                 Log.d("Setting img", img);
                 String status= dataSnapshot.child("status").getValue(String.class);
                 Log.d("Setting status", status);
@@ -94,7 +97,18 @@ public class SettingsActivity extends AppCompatActivity {
                 }
 
                 else{
-                    Picasso.get().load(img).into(uImage);
+                    Picasso.get().load(img).networkPolicy(NetworkPolicy.OFFLINE)
+                            .into(uImage, new Callback() {
+                                @Override
+                                public void onSuccess() {
+
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    Picasso.get().load(img).into(uImage);
+                                }
+                            });
                 }
 
             }
