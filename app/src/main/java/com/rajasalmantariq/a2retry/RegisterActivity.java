@@ -75,6 +75,7 @@ public class RegisterActivity extends AppCompatActivity {
                             map.put("status", "Hi there ! Update me please !");
                             map.put("image", "default");
                             map.put("thumbnail", "default");
+                            map.put("number", phno.getText().toString());
 
                             dbRef.setValue(map);
 

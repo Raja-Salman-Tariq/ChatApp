@@ -13,6 +13,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -39,12 +43,13 @@ public class MyRvAdapter extends RecyclerView.Adapter<MyRvAdapter.MyViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
+        Log.d("here", "onBindViewHolder: ");
         holder.name.setText(ls.get(position).getName());
-        holder.phno.setText(ls.get(position).getStatus());
+        holder.phno.setText(ls.get(position).getNumber());
         holder.email.setText(ls.get(position).getImage());
         Picasso.get().load(ls.get(position).getImage()).into(holder.rowDp);
 
-//        holder.email.getText().toString()
+//        holder.email.getTextthis().toString()
         if (this.usr==null && holder.email.getText().toString().contentEquals(this.email)){
             usr=holder.name.getText().toString();
             Log.d("ABC", holder.email.getText().toString()+"--"+this.email);
@@ -54,14 +59,17 @@ public class MyRvAdapter extends RecyclerView.Adapter<MyRvAdapter.MyViewHolder> 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-//                Toast.makeText(
-//                        "Deleting Chat: "+holder.name.getText().toString(),
-//                        Toast.LENGTH_LONG
-//                ).show();
+                Toast.makeText(
+                        c,
+                        "Deleting Chat: "+holder.name.getText().toString(),
+                        Toast.LENGTH_LONG
+                ).show();
                 return false;
             }
         });
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+
+//        holder.getRowDp()
+        holder.rowDp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent i=new Intent(c, ProfileActivity.class);
@@ -70,6 +78,29 @@ public class MyRvAdapter extends RecyclerView.Adapter<MyRvAdapter.MyViewHolder> 
                 i.putExtra("img", ls.get(position).getImage());
 //                i.put
                 c.startActivity(i);
+            }
+        });
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Intent i=new Intent(c, ChatActivity.class);
+                FirebaseDatabase.getInstance().getReference().child("number-user-map")
+                        .child(holder.phno.getText().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                String uid=dataSnapshot.getValue(String.class);
+                                i.putExtra("uid", uid);
+                                Log.d("Chat", "Checking passed extra (uid): "+uid+", my no.: "+holder.phno.getText().toString());
+                                c.startActivity(i);
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+
             }
         });
     }

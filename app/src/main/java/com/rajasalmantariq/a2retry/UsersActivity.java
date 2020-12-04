@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,14 +16,17 @@ import android.widget.TextView;
 //import com.firebase.ui.database.FirebaseRecyclerAdapter;
 //import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -32,13 +36,32 @@ public class UsersActivity extends AppCompatActivity {
     RecyclerView rv;
     DatabaseReference dbRef;
     List<Users> users;
+    List<String> friendIDs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_users);
 
+        final String user=FirebaseAuth.getInstance().getCurrentUser().getUid();
         dbRef= FirebaseDatabase.getInstance().getReference().child("users");
+
+        friendIDs=new ArrayList<>();
+        FirebaseDatabase.getInstance().getReference().child("friend-lists").
+                child(user).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot friend:dataSnapshot.getChildren()){
+                    friendIDs.add(friend.getValue(String.class));
+                    Log.d("FriendsList", "item: "+friendIDs.size()+", "+(friendIDs.get(friendIDs.size()-1)+" hah"));
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
         users=new ArrayList<>();
         final MyRvAdapter adapter=new MyRvAdapter(users,this,
@@ -47,10 +70,24 @@ public class UsersActivity extends AppCompatActivity {
         dbRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                users.add(
-                        dataSnapshot.getValue(Users.class)
-                );
-                adapter.notifyDataSetChanged();
+
+                boolean found=false;
+
+                for (String str : friendIDs){
+                    if (dataSnapshot.getKey().equals(str))
+                        found=true;
+                    Log.d("FriendsList:", "retrived key: " +dataSnapshot.getKey());
+                }
+
+                if(found) {
+                    Log.d("here", "onChildAdded: ");
+                    users.add(
+                            dataSnapshot.getValue(Users.class)
+                    );
+                    Log.d("here", "onChildAdded: 2");
+                    adapter.notifyDataSetChanged();
+//                    Log.d(TAG, "onChildAdded: 3");
+                }
             }
 
             @Override
