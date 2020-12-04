@@ -3,11 +3,11 @@
     android:layout_width="300dp"
     android:padding="8dp"
     android:layout_height="wrap_content">
-    
+
     <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/leftChatPic"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:id="@+id/leftChatPic"
         android:src="@mipmap/ic_launcher">
 
     </de.hdodenhof.circleimageview.CircleImageView>
@@ -22,5 +22,18 @@
         android:padding="8dp"
         android:text="hello worldah"
         android:textSize="18sp"></TextView>
+
+    <ImageView
+        android:id="@+id/imgMsg"
+        android:layout_width="86dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignStart="@id/leftChatMsg"
+        android:layout_below="@id/imgMsg"
+        android:layout_toEndOf="@id/leftChatPic"
+        android:scaleType="centerCrop"
+        android:layout_alignLeft="@id/leftChatMsg"
+        android:layout_toRightOf="@id/leftChatPic" />
 
 </RelativeLayout>

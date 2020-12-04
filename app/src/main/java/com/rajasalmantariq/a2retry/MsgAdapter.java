@@ -4,12 +4,14 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -45,7 +47,19 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.MsgViewHolder> {
             holder.msg.setBackgroundResource(R.drawable.leftmsg);
             holder.msg.setTextColor(Color.WHITE);
         }
-        holder.msg.setText(msgs.get(position).getMsg());
+
+        if (msgs.get(position).getType().equals("txt")) {
+            holder.msg.setVisibility(View.VISIBLE);
+            holder.msg.setText(msgs.get(position).getMsg());
+            holder.img.setVisibility(View.INVISIBLE);
+        }
+        else{
+            holder.img.setVisibility(View.VISIBLE);
+            holder.msg.setVisibility(View.INVISIBLE);
+
+            Picasso.get().load(msgs.get(position).getMsg()).placeholder(R.drawable.ic_launcher_foreground)
+                    .into(holder.img);
+        }
 
 
     }
@@ -58,11 +72,13 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.MsgViewHolder> {
     public class MsgViewHolder extends RecyclerView.ViewHolder{
         public TextView msg;
         public CircleImageView dp;
+        public ImageView img;
 
         public MsgViewHolder(@NonNull View itemView) {
             super(itemView);
             this.msg = itemView.findViewById(R.id.leftChatMsg);
             this.dp = itemView.findViewById(R.id.leftChatPic);
+            this.img=itemView.findViewById(R.id.imgMsg);
         }
     }
 }
