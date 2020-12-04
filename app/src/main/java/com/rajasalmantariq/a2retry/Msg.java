@@ -2,7 +2,18 @@ package com.rajasalmantariq.a2retry;
 
 public class Msg {
 
-    String msg, type;
+    String msg;
+    String type;
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
+    String from;
     boolean seen;
     long time;
 
@@ -10,11 +21,12 @@ public class Msg {
 
     }
 
-    public Msg(String msg, String type, boolean seen, long time) {
+    public Msg(String msg, String type, boolean seen, long time, String from) {
         this.msg = msg;
         this.type = type;
         this.seen = seen;
         this.time = time;
+        this.from = from;
     }
 
     public String getMsg() {

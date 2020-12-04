@@ -1,5 +1,6 @@
 package com.rajasalmantariq.a2retry;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -15,9 +18,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.MsgViewHolder> {
 
     List<Msg> msgs;
+    String myid;
 
     public MsgAdapter(List<Msg> msgs) {
         this.msgs = msgs;
+        myid=FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
     @NonNull
@@ -31,6 +36,15 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.MsgViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull MsgViewHolder holder, int position) {
 
+        if (msgs.get(position).getFrom().equals(myid)){
+            holder.msg.setBackgroundColor(Color.WHITE);
+            holder.msg.setTextColor(Color.BLACK);
+        }
+
+        else{
+            holder.msg.setBackgroundResource(R.drawable.leftmsg);
+            holder.msg.setTextColor(Color.WHITE);
+        }
         holder.msg.setText(msgs.get(position).getMsg());
 
 
