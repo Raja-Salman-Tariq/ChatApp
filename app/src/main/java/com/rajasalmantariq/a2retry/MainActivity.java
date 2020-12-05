@@ -22,7 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
-
+    /*dummy comment for dummy new branch commit*/
     private FirebaseAuth mAuth;
     Button logOutBtn, settingsButton, usersButton, addFrnBtn;
 
