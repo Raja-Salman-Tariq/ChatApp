@@ -22,27 +22,34 @@
         android:layout_marginRight="81dp"
         android:layout_marginBottom="4dp" />
 
-    <Button
+    <ImageView
         android:id="@+id/sendBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="71dp"
+        android:layout_height="44dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="-1dp"
         android:layout_marginRight="-1dp"
         android:layout_marginBottom="5dp"
-        android:text="send" />
+        android:background="@drawable/send_icon" />
 
-    <Button
+
+
+    <ImageView
         android:id="@+id/mediaBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="55dp"
+        android:layout_height="39dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="321dp"
-        android:layout_marginRight="321dp"
-        android:layout_marginBottom="0dp"
-        android:text="media" />
+        android:layout_marginStart="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginEnd="341dp"
+        android:layout_marginRight="341dp"
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/ic_baseline_photo_camera_24" />
+
 </RelativeLayout>

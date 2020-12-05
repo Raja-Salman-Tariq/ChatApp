@@ -14,8 +14,8 @@
 
     <TextView
         android:id="@+id/leftChatMsg"
-        android:layout_width="109dp"
-        android:layout_height="wrap_content"
+        android:layout_width="238dp"
+        android:layout_height="52dp"
         android:layout_marginLeft="5dp"
         android:layout_toRightOf="@id/leftChatPic"
         android:background="@drawable/leftmsg"
