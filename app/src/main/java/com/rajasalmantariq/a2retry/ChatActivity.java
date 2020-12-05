@@ -15,6 +15,7 @@ import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -41,7 +42,7 @@ public class ChatActivity extends AppCompatActivity {
     public String uid;
     public String myid;
 
-    Button sendBtn, mediaBtn;
+    ImageView sendBtn, mediaBtn;
     EditText chatMsg;
 
     DatabaseReference dbRef;
@@ -74,6 +75,8 @@ public class ChatActivity extends AppCompatActivity {
         sendBtn=findViewById(R.id.sendBtn);
         mediaBtn=findViewById(R.id.mediaBtn);
         chatMsg=findViewById(R.id.chatMsg);
+
+
 
         dbRef.child("chats").child(myid).addValueEventListener(new ValueEventListener() {
             @Override

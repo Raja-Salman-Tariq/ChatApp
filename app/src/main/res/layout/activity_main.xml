@@ -32,7 +32,7 @@
         android:layout_width="283dp"
         android:layout_height="61dp"
         android:layout_marginTop="20dp"
-        android:background="##00D664"
+        android:background="#00D664"
         android:text="Settings"
         android:textColor="#FFF"
         app:layout_constraintTop_toBottomOf="@+id/logOutButton"
