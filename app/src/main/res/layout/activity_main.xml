@@ -9,12 +9,18 @@
     tools:context=".MainActivity">
 
     <ImageView
+
         android:id="@+id/logo"
         android:layout_width="180dp"
         android:layout_height="180dp"
+        android:layout_marginTop="32dp"
         android:background="@drawable/logo"
-        tools:layout_editor_absoluteX="115dp"
-        tools:layout_editor_absoluteY="16dp" />
+        app:layout_constraintBottom_toTopOf="@+id/logOutButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/logOutButton"
@@ -24,8 +30,9 @@
         android:background="#FFF"
         android:text="Logout"
         android:textColor="#00D664"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="66dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/settingsButton"
@@ -35,8 +42,9 @@
         android:background="#00D664"
         android:text="Settings"
         android:textColor="#FFF"
-        app:layout_constraintTop_toBottomOf="@+id/logOutButton"
-        tools:layout_editor_absoluteX="69dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/logOutButton" />
 
     <Button
         android:id="@+id/usersButton"
@@ -46,20 +54,20 @@
         android:background="#FFF"
         android:text="All Users"
         android:textColor="#00D664"
-        app:layout_constraintTop_toBottomOf="@+id/settingsButton"
-        tools:layout_editor_absoluteX="74dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settingsButton" />
 
     <Button
         android:id="@+id/addFriend"
         android:layout_width="265dp"
         android:layout_height="56dp"
         android:layout_marginTop="32dp"
-        android:layout_marginEnd="72dp"
-        android:layout_marginRight="72dp"
         android:background="#00D664"
         android:text="friend"
         android:textColor="#FFF"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/usersButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
