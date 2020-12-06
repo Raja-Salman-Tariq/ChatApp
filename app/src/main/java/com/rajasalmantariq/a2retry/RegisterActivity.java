@@ -66,6 +66,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                                 if (response.equals("registration successful !")){
                                     Intent i = new Intent(RegisterActivity.this, MainActivity.class);
+                                    i.putExtra("MyNumFromRegisterActivity", phno.getText().toString().trim());
                                     startActivity(i);
                                     finish();
                                 }

@@ -64,6 +64,13 @@ public class MainActivity extends AppCompatActivity {
         addFrnBtn=findViewById(R.id.addFriend);
 
         myNum="";
+
+        try{
+            myNum=getIntent().getStringExtra("MyNumFromRegisterActivity");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         Log.d("myNum", "onCreate: setting it to empty");
 //        checkIfLoggedIn();
 
