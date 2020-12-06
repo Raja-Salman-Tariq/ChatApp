@@ -31,10 +31,10 @@ public class ProfileActivity extends AppCompatActivity {
         name.setText(intent.getStringExtra("name"));
 
         status=findViewById(R.id.profileStatus);
-        status.setText(intent.getStringExtra("status"));
+        status.setText(intent.getStringExtra("Phno"));
 
         other=findViewById(R.id.profileOther);
-        other.setText("Any other profile informations/details.");
+        other.setText(intent.getStringExtra("Status"));
 
         img=findViewById(R.id.profileImage);
         Picasso.get().load(intent.getStringExtra("img")).into(img);

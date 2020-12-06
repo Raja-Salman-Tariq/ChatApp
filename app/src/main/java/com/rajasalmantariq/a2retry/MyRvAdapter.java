@@ -74,8 +74,10 @@ public class MyRvAdapter extends RecyclerView.Adapter<MyRvAdapter.MyViewHolder> 
             public void onClick(View view) {
                 Intent i=new Intent(c, ProfileActivity.class);
                 i.putExtra("name", holder.name.getText());
-                i.putExtra("status",holder.phno.getText());
+                i.putExtra("Phno",holder.phno.getText());
                 i.putExtra("img", ls.get(position).getImage());
+                i.putExtra("Status", ls.get(position).getStatus());
+
 //                i.put
                 c.startActivity(i);
             }

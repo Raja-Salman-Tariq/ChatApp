@@ -24,10 +24,11 @@
 
     <TextView
         android:id="@+id/profileName"
-        android:layout_width="336dp"
-        android:layout_height="55dp"
+        android:layout_width="317dp"
+        android:layout_height="53dp"
         android:layout_marginTop="36dp"
         android:layout_marginEnd="36dp"
+        android:layout_marginLeft="100dp"
         android:layout_marginRight="36dp"
         android:background="#F6F6F6"
         android:text="Username"
@@ -37,8 +38,8 @@
 
     <TextView
         android:id="@+id/profileStatus"
-        android:layout_width="339dp"
-        android:layout_height="59dp"
+        android:layout_width="297dp"
+        android:layout_height="65dp"
         android:layout_marginTop="20dp"
         android:background="#F6F6F6"
         android:text="Status "
@@ -50,7 +51,7 @@
 
     <TextView
         android:id="@+id/profileOther"
-        android:layout_width="337dp"
+        android:layout_width="301dp"
         android:layout_height="60dp"
         android:layout_marginTop="28dp"
         android:background="#F6F6F6"
