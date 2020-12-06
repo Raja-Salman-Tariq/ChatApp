@@ -52,7 +52,7 @@
         android:layout_height="69dp"
         android:layout_marginTop="28dp"
         android:background="#FFF"
-        android:text="All Users"
+        android:text="My Contacts"
         android:textColor="#00D664"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

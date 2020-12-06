@@ -30,7 +30,7 @@
         android:src="@mipmap/contact_icon" />
 
 
-    <TextView
+    <EditText
         android:id="@+id/nameTV"
         android:layout_width="360dp"
         android:layout_height="47dp"
@@ -38,19 +38,22 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="24dp"
+        android:layout_marginLeft="20dp"
         android:layout_marginRight="24dp"
         android:layout_marginBottom="447dp"
         android:background="#F6F6F6"
         android:hint="User name"
         android:textSize="20dp" />
 
-    <TextView
+    <EditText
         android:id="@+id/statusTV"
         android:layout_width="358dp"
         android:layout_height="44dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
+
+        android:layout_marginLeft="20dp"
         android:layout_marginEnd="26dp"
         android:layout_marginRight="26dp"
         android:layout_marginBottom="378dp"
@@ -58,11 +61,13 @@
         android:hint="Status"
         android:textSize="20dp" />
 
-    <TextView
+    <EditText
     android:id="@+id/dateOfBirthTV"
     android:layout_width="358dp"
     android:layout_height="44dp"
     android:layout_alignParentEnd="true"
+
+        android:layout_marginLeft="20dp"
     android:layout_alignParentRight="true"
     android:layout_alignParentBottom="true"
     android:layout_marginEnd="26dp"
@@ -72,11 +77,13 @@
     android:hint="Date Of Birth "
     android:textSize="20dp" />
 
-    <TextView
+    <EditText
         android:id="@+id/PhoneNo"
         android:layout_width="358dp"
         android:layout_height="44dp"
         android:layout_alignParentEnd="true"
+
+        android:layout_marginLeft="20dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="26dp"

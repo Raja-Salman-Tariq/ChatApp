@@ -46,7 +46,7 @@ public class MyRvAdapter extends RecyclerView.Adapter<MyRvAdapter.MyViewHolder> 
         Log.d("here", "onBindViewHolder: ");
         holder.name.setText(ls.get(position).getName());
         holder.phno.setText(ls.get(position).getNumber());
-        holder.email.setText(ls.get(position).getImage());
+        holder.email.setText(ls.get(position).getStatus());
         Picasso.get().load(ls.get(position).getImage()).into(holder.rowDp);
 
 //        holder.email.getTextthis().toString()
