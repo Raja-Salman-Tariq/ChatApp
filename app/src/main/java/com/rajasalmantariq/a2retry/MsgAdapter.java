@@ -1,5 +1,6 @@
 package com.rajasalmantariq.a2retry;
 
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,8 +40,11 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.MsgViewHolder> {
     public void onBindViewHolder(@NonNull MsgViewHolder holder, int position) {
 
         if (msgs.get(position).getFrom().equals(myid)){
-            holder.msg.setBackgroundColor(Color.WHITE);
-            holder.msg.setTextColor(Color.BLACK);
+//            holder.msg.setBackgroundColor(#00D664);
+//            holder.msg.setTextColor(Color.BLACK);
+            holder.msg.setBackgroundResource(R.drawable.rightmsg);
+            holder.msg.setTextColor(Color.WHITE);
+            holder.dp.setVisibility(View.INVISIBLE);
         }
 
         else{
