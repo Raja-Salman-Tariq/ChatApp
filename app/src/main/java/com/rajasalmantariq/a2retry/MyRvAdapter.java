@@ -93,6 +93,7 @@ public class MyRvAdapter extends RecyclerView.Adapter<MyRvAdapter.MyViewHolder> 
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 String uid=dataSnapshot.getValue(String.class);
                                 i.putExtra("uid", uid);
+                                i.putExtra("thumb", ls.get(position).getThumbnail());
                                 Log.d("Chat", "Checking passed extra (uid): "+uid+", my no.: "+holder.phno.getText().toString());
                                 c.startActivity(i);
                             }
