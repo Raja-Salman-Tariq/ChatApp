@@ -22,9 +22,10 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.MsgViewHolder> {
     List<Msg> msgs;
     String myid;
 
-    public MsgAdapter(List<Msg> msgs) {
+    public MsgAdapter(List<Msg> msgs, String mid) {
         this.msgs = msgs;
-        myid=FirebaseAuth.getInstance().getCurrentUser().getUid();
+//        myid=FirebaseAuth.getInstance().getCurrentUser().getUid();
+        myid=mid;
     }
 
     @NonNull

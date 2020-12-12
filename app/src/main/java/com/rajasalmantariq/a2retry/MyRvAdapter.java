@@ -102,21 +102,25 @@ public class MyRvAdapter extends RecyclerView.Adapter<MyRvAdapter.MyViewHolder> 
             @Override
             public void onClick(View view) {
                 final Intent i=new Intent(c, ChatActivity.class);
-                FirebaseDatabase.getInstance().getReference().child("number-user-map")
-                        .child(holder.phno.getText().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                String uid=dataSnapshot.getValue(String.class);
-                                i.putExtra("uid", uid);
-                                Log.d("Chat", "Checking passed extra (uid): "+uid+", my no.: "+holder.phno.getText().toString());
-                                c.startActivity(i);
-                            }
+                i.putExtra("uid", holder.phno.getText());
+                i.putExtra("myid", email);
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
+                c.startActivity(i);
+//                FirebaseDatabase.getInstance().getReference().child("number-user-map")
+//                        .child(holder.phno.getText().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
+//                            @Override
+//                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                                String uid=dataSnapshot.getValue(String.class);
+//                                i.putExtra("uid", uid);
+//                                Log.d("Chat", "Checking passed extra (uid): "+uid+", my no.: "+holder.phno.getText().toString());
+//                                c.startActivity(i);
+//                            }
+//
+//                            @Override
+//                            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//                            }
+//                        });
 
             }
         });

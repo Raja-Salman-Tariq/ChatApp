@@ -1,5 +1,9 @@
 package com.rajasalmantariq.a2retry;
 
+import android.util.Log;
+
+import java.util.StringTokenizer;
+
 public class Msg {
 
     String msg;
@@ -18,6 +22,27 @@ public class Msg {
     long time;
 
     public Msg(){
+
+    }
+
+    public Msg(String s){
+        StringTokenizer stok=new StringTokenizer(s, ",");
+
+        if (stok.hasMoreTokens())
+            stok.nextToken();
+        if (stok.hasMoreTokens())
+            stok.nextToken();
+
+        if (stok.hasMoreTokens())
+            from=stok.nextToken();
+        if (stok.hasMoreTokens())
+            msg=stok.nextToken();
+        if (stok.hasMoreTokens())
+            type=stok.nextToken();
+//        if (stok.hasMoreTokens())
+//            image=stok.nextToken();
+
+        Log.d("msgCstr", "In msg: "+from+msg+type);
 
     }
 
