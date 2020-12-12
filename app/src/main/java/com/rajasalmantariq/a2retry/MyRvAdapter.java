@@ -54,10 +54,12 @@ public class MyRvAdapter extends RecyclerView.Adapter<MyRvAdapter.MyViewHolder> 
 //        Picasso.get().load(ls.get(position).getImage()).into(holder.rowDp);
 
         if (ls.get(position).getThumbnail().equals("1")) {
-            Glide.with(c).load(url + "imgs/" + holder.phno + ".jpeg")
+            Glide.with(c).load(url + "imgs/" + holder.phno.getText() + ".jpeg")
                     .apply(RequestOptions.skipMemoryCacheOf(true))
                     .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
                     .into(holder.rowDp);
+
+//            Log.d("pic", "onBindViewHolder: "+holder.phno());
         }
 
         else{
