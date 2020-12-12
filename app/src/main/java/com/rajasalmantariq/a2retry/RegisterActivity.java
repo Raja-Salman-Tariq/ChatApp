@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
     AppCompatEditText uname, pwd, email, phno;
-    String url="http://192.168.1.3/chatapp/insert.php";
+    String url="http://192.168.1.2/chatapp/insert.php";
     AppCompatButton registerButton;
 
     FirebaseAuth authentication;
@@ -86,6 +86,7 @@ public class RegisterActivity extends AppCompatActivity {
                         map.put(
                                 "name", uname.getText().toString().trim());
                         map.put("img","default");
+
                         map.put("status","Hi ! Update me please !");
                         map.put("number", phno.getText().toString().trim());
                         map.put("thumbnail", "default");

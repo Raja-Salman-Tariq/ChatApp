@@ -20,7 +20,7 @@
         android:layout_marginBottom="523dp"
         android:src="@mipmap/contact_icon" />
 
-    <TextView
+    <EditText
         android:id="@+id/nameTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
         android:layout_marginBottom="461dp"
         android:text="TextView" />
 
-    <TextView
+    <EditText
         android:id="@+id/statusTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -43,5 +43,17 @@
         android:layout_marginRight="165dp"
         android:layout_marginBottom="380dp"
         android:text="TextView" />
+
+    <Button
+        android:id="@+id/updateBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="155dp"
+        android:layout_marginRight="155dp"
+        android:layout_marginBottom="256dp"
+        android:text="Button" />
 
 </RelativeLayout>

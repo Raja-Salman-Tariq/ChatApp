@@ -35,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     FirebaseUser usr;
     FirebaseAuth authentication;
 
-    String url="http://192.168.1.3/chatapp/login.php";
+    String url="http://192.168.1.2/chatapp/login.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

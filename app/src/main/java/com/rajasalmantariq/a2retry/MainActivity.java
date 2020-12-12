@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     /*dummy comment for dummy new branch commit*/
 //    private FirebaseAuth mAuth;
     Button logOutBtn, settingsButton, usersButton, addFrnBtn;
-    String url="http://192.168.1.3/chatapp/isLoggedIn.php";
+    String url="http://192.168.1.2/chatapp/isLoggedIn.php";
 
     String myNum;
 
@@ -89,9 +89,10 @@ public class MainActivity extends AppCompatActivity {
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                checkIfLoggedIn();
-//                Intent i=new Intent(MainActivity.this,SettingsActivity.class);
-//                startActivity(i);
+//                checkIfLoggedIn();
+                Intent i=new Intent(MainActivity.this,SettingsActivity.class);
+                i.putExtra("id", myNum);
+                startActivity(i);
 //                finish();
             }
         });

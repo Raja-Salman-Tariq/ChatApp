@@ -10,10 +10,25 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -33,6 +48,9 @@ import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import id.zelory.compressor.Compressor;
@@ -43,89 +61,67 @@ public class SettingsActivity extends AppCompatActivity {
     StorageReference storageRef;
 
     CircleImageView uImage;
-    TextView uName, uStatus;
+    EditText uName, uStatus;
+
+    String url = "http://192.168.1.2/chatapp/";
+
+    String img = "default", thumb = "default";
+    String encImg;
+
+    Button updateButn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_settings);
 
-        uName=findViewById(R.id.nameTV);
-        uStatus=findViewById(R.id.statusTV);
-        uImage=findViewById(R.id.settings_image);
+        updateButn=(Button) findViewById(R.id.updateBtn);
 
-        user= FirebaseAuth.getInstance().getCurrentUser();
-        dbRef= FirebaseDatabase.getInstance().getReference().child("users").child(user.getUid());
-        dbRef.keepSynced(true);
-        storageRef= FirebaseStorage.getInstance().getReference().child("profile_images").child(user.getUid());
-
-        dbRef.addValueEventListener(new ValueEventListener() {
+        Log.d("UPDBTN", "onCreate: "+findViewById(R.id.updateBtn).toString());
+        updateButn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String name= dataSnapshot.child("name").getValue(String.class);
-                Log.d("Setting name", name);
-                final String img= dataSnapshot.child("image").getValue(String.class);
-                Log.d("Setting img", img);
-                String status= dataSnapshot.child("status").getValue(String.class);
-                Log.d("Setting status", status);
-                String thumb= dataSnapshot.child("thumbnail").getValue(String.class);
-                Log.d("Setting thumb", thumb+"was EMPTY !");
-
-
-                uName.setText(name);
-                uStatus.setText(status);
-//                uImage.set
-                if (img.equals("default")){
-                    Log.d("abc2", "entered if: ");
-
-                    StorageReference ref2 = FirebaseStorage.getInstance().getReference().child("profile_images").child("icon.png");
-                    ref2.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            final String dnldUrl1 = uri.toString();
-                            Log.d("abc2", "url rcvd in if: " + dnldUrl1);
-                            dbRef.child("image").setValue(dnldUrl1).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                Picasso.get().load(dnldUrl1).into(uImage);
-                                }
-                            });
-                        }
-
-                    });
-//                    Picasso.get().load(img).into(uImage);
-                }
-
-                else{
-                    Picasso.get().load(img).networkPolicy(NetworkPolicy.OFFLINE)
-                            .into(uImage, new Callback() {
-                                @Override
-                                public void onSuccess() {
-
-                                }
-
-                                @Override
-                                public void onError(Exception e) {
-                                    Picasso.get().load(img).into(uImage);
-                                }
-                            });
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
+            public void onClick(View view) {
+                updateProfile();
             }
         });
+
+        encImg="";
+        uName = findViewById(R.id.nameTV);
+        uStatus = findViewById(R.id.statusTV);
+        uImage = findViewById(R.id.settings_image);
+
+
+        getUserInfo();
+
+        if (img.equals("default")) {
+            uImage.setImageResource(R.mipmap.contact_icon);
+//            uImage.setImageResource(R.drawable.ic_launcher_foreground);
+        } else {
+//            Picasso.get().load(img).placeholder(R.drawable.ic_launcher_foreground).networkPolicy(NetworkPolicy.OFFLINE)
+//                    .into(uImage, new Callback() {
+//                        @Override
+//                        public void onSuccess() {
+//
+//                        }
+//
+//                        @Override
+//                        public void onError(Exception e) {
+//                            Picasso.get().load(R.drawable.ic_launcher_foreground).into(uImage);
+//                        }
+//                    });
+            Log.d("SettingsActivity:uImg", "onCreate: Load data now");
+        }
+
+
 
         uImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i= new Intent();
+                Intent i = new Intent();
                 i.setType("image/*");
                 i.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(i,200);
+                startActivityForResult(i, 200);
 
 
             }
@@ -138,111 +134,176 @@ public class SettingsActivity extends AppCompatActivity {
 
         Log.d("abc2", "onActivityResult: ");
 
-        if (resultCode==RESULT_OK && requestCode==200){
-            Uri imgUri=data.getData();
+        if (resultCode == RESULT_OK && requestCode == 200) {
+            Uri imgUri = data.getData();
 
 //            Bitmap myBmp= BitmapFactory.decodeFile(imgUri.getEncodedPath());
-            Bitmap myBmp=null;
+            Bitmap myBmp = null;
             try {
-                myBmp= MediaStore.Images.Media.getBitmap(this.getContentResolver(), imgUri);
+                myBmp = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imgUri);
+            } catch (Exception e) {
             }
-            catch (Exception e){}
 
-            myBmp= Bitmap.createScaledBitmap(myBmp, 200, 200, true);
-            ByteArrayOutputStream bos= new ByteArrayOutputStream();
+            myBmp = Bitmap.createScaledBitmap(myBmp, 200, 200, true);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
             myBmp.compress(Bitmap.CompressFormat.JPEG, 75, bos);
-            byte[] myBmpArr=bos.toByteArray();
-//            Bitmap compressedImageFile = Compressor.compress(SettingsActivity.this);//;{
-//                resolution(1280, 720);
-//                quality(80);
-//                format(Bitmap.CompressFormat.WEBP);
-//                size(2_097_152); // 2 MB
-//            };
-//            ByteArrayOutputStream baos= new ByteArrayOutputStream();
-//            compressedImageFile.compress()
+            byte[] myBmpArr = bos.toByteArray();
 
-            StorageReference thumbRef=FirebaseStorage.getInstance().getReference().child("thumbs").child(user.getUid()+".jpg");
-            UploadTask uT=thumbRef.putBytes(myBmpArr);
-            uT.addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.d("abc2", "onFailure: thumb uploading");
-                }
-            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                    final String thumbUrl;
-                    taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            dbRef.child("thumbnail").setValue(uri.toString());
-                        }
-                    });
-                }
-            });
-//            }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-//                @Override
-//                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-//                    String thumbUrl=task.getResult().getStorage().getDownloadUrl().toString();
-//                }
-//            });
+            encImg = android.util.Base64.encodeToString(myBmpArr, Base64.DEFAULT);
 
-            storageRef.putFile(imgUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                    final String dnldUrl;
-                    taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            final String dnldUrl = uri.toString();
+            uImage.setImageURI(imgUri);
 
-                            if (dnldUrl.equals( "default")) {
-                                StorageReference ref2 = FirebaseStorage.getInstance().getReference().child("profile_images").child("icon.png");
-                                ref2.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        final String dnldUrl1 = uri.toString();
-
-                                        Log.d("abc2", "url rcvd in if: " + dnldUrl1);
-                                        dbRef.child("image").setValue(dnldUrl1).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                Picasso.get().load(dnldUrl1).into(uImage);
-                                            }
-                                        });
-                                    }
-
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.d("abc2", "We have failed...: ");
-                                    }
-                                });
-                            }
-
-                            else {
-
-                                Log.d("abc2", "url rcvd: " + dnldUrl);
-                                dbRef.child("image").setValue(dnldUrl).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-//                                Picasso.with(SettingsActivity.this).load(dnldUrl).into(uImage);
-                                Picasso.get().load(dnldUrl).into(uImage);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    });
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.d("abc2", "url failed: ");
-                }
-            });
-//            uImage.setImageURI(imgUri);
         }
     }
+
+
+    void getUserInfo() {
+        StringRequest req = new StringRequest(
+                Request.Method.POST,
+                url + "getUserInfo.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        Log.d("settings:loadpic", "onResponse: "+response);
+                        Toast.makeText(SettingsActivity.this,
+                                "The echoed responce was: " + response,
+                                Toast.LENGTH_LONG).show();
+
+                        String tId="";
+
+                        if (response.charAt(0) != '*') {
+
+                            StringTokenizer stok = new StringTokenizer(response, ",");
+
+                            if (stok.hasMoreTokens())
+                                uName.setText(stok.nextToken());
+                            if (stok.hasMoreTokens())
+                                thumb = stok.nextToken();
+                            if (stok.hasMoreTokens())
+                                uStatus.setText(stok.nextToken());
+                            if (stok.hasMoreTokens()) {
+                                img = stok.nextToken();
+                                Log.d("imgtok", "onResponse: "+img);
+                            }
+                            if (stok.hasMoreTokens()) {
+                                tId = stok.nextToken();
+                            }
+                            else {
+                                Log.d("getUserInfo", "onResponse: reading request, failed when trying to read tokens.");
+                            }
+                        } else {
+                            Log.d("getUserInfo", "onResponse: reading request, responce was null.");
+                        }
+
+                        if (img.equals("1")){
+                            Log.d("settings:loadpic", "onResponse: entered");
+//                            Picasso.get().load(url+"imgs/"+tId+".jpeg");
+                            Glide.with(SettingsActivity.this).load(url+"imgs/"+tId+".jpeg")
+                                    .apply(RequestOptions.skipMemoryCacheOf(true))
+                                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
+                                    .into(uImage);
+                        }
+                        else{
+                            Log.d("settings:loadpic", "onResponse: nope");
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+
+                if (error != null && error.networkResponse != null) {
+                    Toast.makeText(SettingsActivity.this,
+                            "ERROR: " + error.getMessage() +
+                                    ", \nResponce: " + error.networkResponse.statusCode +
+                                    ",\nData: " + new String(error.networkResponse.data),
+                            Toast.LENGTH_LONG)
+                            .show();
+                } else {
+                    Toast.makeText(SettingsActivity.this, "ERROR: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> map = new HashMap<>();
+                map.put("id", getIntent().getStringExtra("id").trim());
+                return map;
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(SettingsActivity.this);
+
+        requestQueue.add(req);
+    }
+
+
+
+    void updateProfile(){
+
+        Log.d("updprof", "updateProfile: called");
+        StringRequest req = new StringRequest(
+                Request.Method.POST,
+                url + "updateProfile.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        Log.d("updprof", "updateProfile:on responce called: "+response);
+
+                        Toast.makeText(SettingsActivity.this,
+                                "The echoed responce was: " + response,
+                                Toast.LENGTH_LONG).show();
+
+                        if (response.charAt(0) != '*') {
+                            Log.d("profileUpdate", "onResponse: Succeeded update");
+                        } else {
+                            Log.d("profileUpdate", "onResponse: Profile update failed.");
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+
+                if (error != null && error.networkResponse != null) {
+                    Toast.makeText(SettingsActivity.this,
+                            "ERROR: " + error.getMessage() +
+                                    ", \nResponce: " + error.networkResponse.statusCode +
+                                    ",\nData: " + new String(error.networkResponse.data),
+                            Toast.LENGTH_LONG)
+                            .show();
+                } else {
+                    Toast.makeText(SettingsActivity.this, "ERROR: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> map = new HashMap<>();
+                map.put("id", getIntent().getStringExtra("id").trim());
+                map.put("status", uStatus.getText().toString().trim());
+                map.put("name", uName.getText().toString().trim());
+
+                if (!encImg.equals("")) {
+                    map.put("thumb", "1");
+                    map.put("img", "1");
+                    map.put("data", encImg);
+                }
+
+                else{
+                    map.put("thumb", "default");
+                    map.put("img", "default");
+                    map.put("data", "default");
+                }
+                return map;
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(SettingsActivity.this);
+
+        requestQueue.add(req);    }
 }
