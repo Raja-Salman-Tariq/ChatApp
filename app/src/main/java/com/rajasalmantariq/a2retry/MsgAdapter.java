@@ -1,6 +1,8 @@
 package com.rajasalmantariq.a2retry;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +12,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
@@ -21,11 +26,14 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.MsgViewHolder> {
 
     List<Msg> msgs;
     String myid;
+    Context c;
+    String url="http://192.168.1.2/chatapp/";
 
-    public MsgAdapter(List<Msg> msgs, String mid) {
+    public MsgAdapter(Context c, List<Msg> msgs, String mid) {
         this.msgs = msgs;
 //        myid=FirebaseAuth.getInstance().getCurrentUser().getUid();
         myid=mid;
+        this.c=c;
     }
 
     @NonNull
@@ -58,8 +66,15 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.MsgViewHolder> {
             holder.img.setVisibility(View.VISIBLE);
             holder.msg.setVisibility(View.INVISIBLE);
 
-            Picasso.get().load(msgs.get(position).getMsg()).placeholder(R.drawable.ic_launcher_foreground)
+//            Picasso.get().load(msgs.get(position).getMsg()).placeholder(R.drawable.ic_launcher_foreground)
+//                    .into(holder.img);
+
+            Glide.with(c).load(url + "mediamsgs/"+msgs.get(position).getMsg()+".jpeg")
+                    .apply(RequestOptions.skipMemoryCacheOf(true))
+                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
                     .into(holder.img);
+
+            Log.d("pix", "onBindViewHolder: "+url + "mediamsgs/"+holder.msg.getText()+".jpeg");
         }
 
 

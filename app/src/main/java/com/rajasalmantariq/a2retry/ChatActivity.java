@@ -7,10 +7,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
@@ -40,7 +43,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,31 +56,33 @@ public class ChatActivity extends AppCompatActivity {
     public String uid;
     public String myid;
 
+    String encImg;
+
     Button sendBtn, mediaBtn;
     EditText chatMsg;
 
     DatabaseReference dbRef;
 
     RecyclerView rv;
-    List<Msg> msgs=new ArrayList<>();
+    List<Msg> msgs = new ArrayList<>();
     LinearLayoutManager llm;
     MsgAdapter msgAda;
-    String url="http://192.168.1.2/chatapp/";
+    String url = "http://192.168.1.2/chatapp/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        uid=getIntent().getStringExtra("uid");
+        uid = getIntent().getStringExtra("uid");
 //        dbRef=FirebaseDatabase.getInstance().getReference();
 //        myid= FirebaseAuth.getInstance().getCurrentUser().getUid();
-        myid=getIntent().getStringExtra("myid");
+        myid = getIntent().getStringExtra("myid");
 
-        msgs=new ArrayList<>();
-        msgAda=new MsgAdapter(msgs, myid);
-        rv=findViewById(R.id.msgsRv);
-        llm=new LinearLayoutManager(this);
+        msgs = new ArrayList<>();
+        msgAda = new MsgAdapter(ChatActivity.this, msgs, myid);
+        rv = findViewById(R.id.msgsRv);
+        llm = new LinearLayoutManager(this);
         rv.setHasFixedSize(true);
         rv.setLayoutManager(llm);
         rv.setAdapter(msgAda);
@@ -83,9 +90,9 @@ public class ChatActivity extends AppCompatActivity {
         loadMsgs();
 
 
-        sendBtn=findViewById(R.id.sendBtn);
-        mediaBtn=findViewById(R.id.mediaBtn);
-        chatMsg=findViewById(R.id.chatMsg);
+        sendBtn = findViewById(R.id.sendBtn);
+        mediaBtn = findViewById(R.id.mediaBtn);
+        chatMsg = findViewById(R.id.chatMsg);
 
 //        dbRef.child("chats").child(myid).addValueEventListener(new ValueEventListener() {
 //            @Override
@@ -119,11 +126,11 @@ public class ChatActivity extends AppCompatActivity {
         mediaBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i=new Intent();
+                Intent i = new Intent();
                 i.setType("image/*");
                 i.setAction(Intent.ACTION_GET_CONTENT);
 
-                startActivityForResult(Intent.createChooser(i,"Selecti an Image..."),12345);
+                startActivityForResult(Intent.createChooser(i, "Selecti an Image..."), 12345);
             }
         });
 
@@ -141,71 +148,85 @@ public class ChatActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode==RESULT_OK && requestCode==12345){
-            Uri imgUri=data.getData();
+        if (resultCode == RESULT_OK && requestCode == 12345) {
+            Uri imgUri = data.getData();
 
-            final String myRef="messages/"+myid+"/"+uid,
-                    otherRef="messages/"+uid+"/"+myid;
+            Bitmap myBmp = null;
+            try {
+                myBmp = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imgUri);
+            } catch (Exception e) {
+            }
 
-            final DatabaseReference dbR=dbRef.child("messages").child(myid)
-                    .child(uid).push();
+            myBmp = Bitmap.createScaledBitmap(myBmp, 200, 200, true);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            myBmp.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+            byte[] myBmpArr = bos.toByteArray();
 
-            final String pushId= dbR.getKey();
+            encImg = android.util.Base64.encodeToString(myBmpArr, Base64.DEFAULT);
 
-            StorageReference stoRef= FirebaseStorage.getInstance().getReference()
-                    .child("msg_imgs").child(pushId+".jpg");
+            sendMsg(uid+myid+(new Date()),encImg);
+//            final String myRef="messages/"+myid+"/"+uid,
+//                    otherRef="messages/"+uid+"/"+myid;
 
-            stoRef.putFile(imgUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+//            final DatabaseReference dbR=dbRef.child("messages").child(myid)
+//                    .child(uid).push();
 
-                    if (task.isSuccessful()) {
+//            final String pushId= dbR.getKey();
 
-                        task.getResult().getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                String msg=uri.toString();
-                                Map msgMap = new HashMap();
-                                msgMap.put("msg", msg);
-                                msgMap.put("time", ServerValue.TIMESTAMP);
-                                msgMap.put("seen", false);
-                                msgMap.put("type", "img");
-                                msgMap.put("from", myid);
+//            StorageReference stoRef= FirebaseStorage.getInstance().getReference()
+//                    .child("msg_imgs").child(pushId+".jpg");
 
-                                Map msgUsrMap = new HashMap();
-                                msgUsrMap.put(myRef + "/" + pushId, msgMap);
-                                msgUsrMap.put(otherRef + "/" + pushId, msgMap);
+//            stoRef.putFile(imgUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+//                @Override
+//                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
-
-                                dbRef.updateChildren(msgUsrMap, new DatabaseReference.CompletionListener() {
-                                    @Override
-                                    public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
-
-                                    }
-                                });
-                            }
-                        });
-
-                    }
-
-                }
-            });
+//                    if (task.isSuccessful()) {
+//
+//                        task.getResult().getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+//                            @Override
+//                            public void onSuccess(Uri uri) {
+//                                String msg=uri.toString();
+//                                Map msgMap = new HashMap();
+//                                msgMap.put("msg", msg);
+//                                msgMap.put("time", ServerValue.TIMESTAMP);
+//                                msgMap.put("seen", false);
+//                                msgMap.put("type", "img");
+//                                msgMap.put("from", myid);
+//
+//                                Map msgUsrMap = new HashMap();
+//                                msgUsrMap.put(myRef + "/" + pushId, msgMap);
+//                                msgUsrMap.put(otherRef + "/" + pushId, msgMap);
+//
+//
+//                                dbRef.updateChildren(msgUsrMap, new DatabaseReference.CompletionListener() {
+//                                    @Override
+//                                    public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+//
+//                                    }
+//                                });
+//                            }
+//                        });
+//
+//                    }
+//
+//                }
+//            });
         }
     }
 
-    void handleMsgs(String str){
-        StringTokenizer stok1= new StringTokenizer(str, "#");
-        String holder1="";
-        Log.d("get msg", "handleMsgs: before while"+str);
+    void handleMsgs(String str) {
+        StringTokenizer stok1 = new StringTokenizer(str, "#");
+        String holder1 = "";
+        Log.d("get msg", "handleMsgs: before while" + str);
 
 //        msgs=new ArrayList<>();
 
-        while (stok1.hasMoreTokens()){
+        while (stok1.hasMoreTokens()) {
             Log.d("get msg", "handleMsgs: in while");
-            holder1=stok1.nextToken();
+            holder1 = stok1.nextToken();
 
-            if (!holder1.equals("")){
-                Msg m=new Msg(holder1);
+            if (!holder1.equals("")) {
+                Msg m = new Msg(holder1);
                 msgs.add(m);
                 msgAda.notifyDataSetChanged();
             }
@@ -213,53 +234,50 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-    public void loadMsgs(){
-        Log.d("Chat", "My Id: "+myid+", his id: "+uid);
+    public void loadMsgs() {
+        Log.d("Chat", "My Id: " + myid + ", his id: " + uid);
 
-        StringRequest req=new StringRequest(
+        StringRequest req = new StringRequest(
                 Request.Method.POST,
-                url+"getMsgs.php",
+                url + "getMsgs.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
 
                         handleMsgs(response);
 
-                        Log.d("responceChatAct", "onResponse get msg: "+response);
+                        Log.d("responceChatAct", "onResponse get msg: " + response);
 
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("responceChatAct", "onError: "+error.getMessage());
+                Log.d("responceChatAct", "onError: " + error.getMessage());
 
 
-                if (error != null && error.networkResponse!=null){
+                if (error != null && error.networkResponse != null) {
                     Toast.makeText(ChatActivity.this,
                             "ERROR: " + error.getMessage() +
                                     ", \nResponce: " + error.networkResponse.statusCode +
                                     ",\nData: " + new String(error.networkResponse.data),
                             Toast.LENGTH_LONG)
                             .show();
-                }
-
-                else{
-                    Toast.makeText(ChatActivity.this, "ERROR: " + error.getMessage(),Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(ChatActivity.this, "ERROR: " + error.getMessage(), Toast.LENGTH_LONG).show();
                 }
             }
         }
-        )
-        {
+        ) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> map=new HashMap<>();
-                map.put("id",uid);
+                Map<String, String> map = new HashMap<>();
+                map.put("id", uid);
                 map.put("myId", myid);
                 return map;
             }
         };
 
-        RequestQueue requestQueue= Volley.newRequestQueue(ChatActivity.this);
+        RequestQueue requestQueue = Volley.newRequestQueue(ChatActivity.this);
 
         requestQueue.add(req);
 
@@ -304,49 +322,47 @@ public class ChatActivity extends AppCompatActivity {
     }
 
 
-    public void sendMsg(){
-        final String msg=chatMsg.getText().toString();
+    public void sendMsg() {
+
+        final String msg = chatMsg.getText().toString();
 
 
-        if (!TextUtils.isEmpty(msg)){
-            Log.d("chatAct", "sendMsg: "+msg);
+        if (!TextUtils.isEmpty(msg)) {
+            Log.d("chatAct", "sendMsg: " + msg);
 
-            StringRequest req=new StringRequest(
+            StringRequest req = new StringRequest(
                     Request.Method.POST,
-                    url+"sendMsg.php",
+                    url + "sendMsg.php",
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
 
-                            Log.d("responceChatAct", "onResponse: "+response);
+                            Log.d("responceChatAct", "onResponse: " + response);
 
                         }
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.d("responceChatAct", "onError: "+error.getMessage());
+                    Log.d("responceChatAct", "onError: " + error.getMessage());
 
 
-                    if (error != null && error.networkResponse!=null){
+                    if (error != null && error.networkResponse != null) {
                         Toast.makeText(ChatActivity.this,
                                 "ERROR: " + error.getMessage() +
                                         ", \nResponce: " + error.networkResponse.statusCode +
                                         ",\nData: " + new String(error.networkResponse.data),
                                 Toast.LENGTH_LONG)
                                 .show();
-                    }
-
-                    else{
-                        Toast.makeText(ChatActivity.this, "ERROR: " + error.getMessage(),Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(ChatActivity.this, "ERROR: " + error.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 }
             }
-            )
-            {
+            ) {
                 @Override
                 protected Map<String, String> getParams() throws AuthFailureError {
-                    Map<String, String> map=new HashMap<>();
-                    map.put("id",uid);
+                    Map<String, String> map = new HashMap<>();
+                    map.put("id", uid);
                     map.put("myId", myid);
 //                    Log.d(TAG, "getParams: ");
                     map.put("msg", msg.trim());
@@ -355,18 +371,86 @@ public class ChatActivity extends AppCompatActivity {
                 }
             };
 
-            RequestQueue requestQueue= Volley.newRequestQueue(ChatActivity.this);
+            RequestQueue requestQueue = Volley.newRequestQueue(ChatActivity.this);
 
             requestQueue.add(req);
 
-            Msg m=new Msg(msg, "txt",false,0,myid);
+            Msg m = new Msg(msg, "txt", false, 0, myid);
             msgs.add(m);
             msgAda.notifyDataSetChanged();
-            Log.d("ada", "sendMsg: "+msgs.size());
+            Log.d("ada", "sendMsg: " + msgs.size());
 
 
             chatMsg.setText("");
 
-;        }
+            ;
+        }
+    }
+
+
+    public void sendMsg(final String aMsg, final String msgData) {
+
+        final String msg = aMsg;
+
+
+        if (!TextUtils.isEmpty(msg)) {
+            Log.d("chatAct", "sendMsg: " + msg);
+
+            StringRequest req = new StringRequest(
+                    Request.Method.POST,
+                    url + "sendMsg.php",
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+
+                            Log.d("responceChatAct", "onResponse: " + response);
+
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d("responceChatAct", "onError: " + error.getMessage());
+
+
+                    if (error != null && error.networkResponse != null) {
+                        Toast.makeText(ChatActivity.this,
+                                "ERROR: " + error.getMessage() +
+                                        ", \nResponce: " + error.networkResponse.statusCode +
+                                        ",\nData: " + new String(error.networkResponse.data),
+                                Toast.LENGTH_LONG)
+                                .show();
+                    } else {
+                        Toast.makeText(ChatActivity.this, "ERROR: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+            ) {
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("id", uid);
+                    map.put("myId", myid);
+//                    Log.d(TAG, "getParams: ");
+                    map.put("msg", aMsg);
+                    map.put("type", "img");
+                    map.put("data", msgData);
+                    return map;
+                }
+            };
+
+            RequestQueue requestQueue = Volley.newRequestQueue(ChatActivity.this);
+
+            requestQueue.add(req);
+
+            Msg m = new Msg(msg, "img", false, 0, myid);
+            msgs.add(m);
+            msgAda.notifyDataSetChanged();
+            Log.d("ada", "sendMsg: " + msgs.size());
+
+
+            chatMsg.setText("");
+
+            ;
+        }
     }
 }
