@@ -4,51 +4,70 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#00D664"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <ImageView
+
+        android:id="@+id/logo"
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/logo"
+        app:layout_constraintBottom_toTopOf="@+id/logOutButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/logOutButton"
-        android:layout_width="208dp"
-        android:layout_height="57dp"
+        android:layout_width="287dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="272dp"
+        android:background="#FFF"
         android:text="Logout"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="166dp" />
+        android:textColor="#00D664"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/settingsButton"
-        android:layout_width="131dp"
-        android:layout_height="50dp"
+        android:layout_width="283dp"
+        android:layout_height="61dp"
+        android:layout_marginTop="20dp"
+        android:background="#00D664"
         android:text="Settings"
-        app:layout_constraintTop_toBottomOf="@+id/logOutButton"
-        tools:layout_editor_absoluteX="184dp" />
+        android:textColor="#FFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/logOutButton" />
 
     <Button
         android:id="@+id/usersButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="All Users"
-        app:layout_constraintTop_toBottomOf="@+id/settingsButton"
-        tools:layout_editor_absoluteX="184dp" />
+        android:layout_width="273dp"
+        android:layout_height="69dp"
+        android:layout_marginTop="28dp"
+        android:background="#FFF"
+        android:text="My Contacts"
+        android:textColor="#00D664"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settingsButton" />
 
     <Button
         android:id="@+id/addFriend"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
-        android:layout_marginEnd="136dp"
-        android:layout_marginRight="136dp"
+        android:layout_width="265dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="32dp"
+        android:background="#00D664"
         android:text="friend"
+        android:textColor="#FFF"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/usersButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
