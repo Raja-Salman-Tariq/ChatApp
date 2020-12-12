@@ -12,9 +12,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 //import com.firebase.ui.database.FirebaseRecyclerAdapter;
 //import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -25,93 +33,106 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UsersActivity extends AppCompatActivity {
 
     RecyclerView rv;
-    DatabaseReference dbRef;
+    //    DatabaseReference dbRef;
     List<Users> users;
     List<String> friendIDs;
+    String url="http://192.168.1.2/chatapp/";
+    MyRvAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_users);
 
-        final String user=FirebaseAuth.getInstance().getCurrentUser().getUid();
-        dbRef= FirebaseDatabase.getInstance().getReference().child("users");
+//        final String user=FirebaseAuth.getInstance().getCurrentUser().getUid();
+//        dbRef= FirebaseDatabase.getInstance().getReference().child("users");
 
-        friendIDs=new ArrayList<>();
-        FirebaseDatabase.getInstance().getReference().child("friend-lists").
-                child(user).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot friend:dataSnapshot.getChildren()){
-                    friendIDs.add(friend.getValue(String.class));
-                    Log.d("FriendsList", "item: "+friendIDs.size()+", "+(friendIDs.get(friendIDs.size()-1)+" hah"));
-                }
-            }
+        friendIDs = new ArrayList<>();
+//        FirebaseDatabase.getInstance().getReference().child("friend-lists").
+//                child(user).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                for (DataSnapshot friend:dataSnapshot.getChildren()){
+//                    friendIDs.add(friend.getValue(String.class));
+//                    Log.d("FriendsList", "item: "+friendIDs.size()+", "+(friendIDs.get(friendIDs.size()-1)+" hah"));
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+        users = new ArrayList<>();
+//        final MyRvAdapter
+        adapter = new MyRvAdapter(users, this, getIntent().getStringExtra("id"));
 
-        users=new ArrayList<>();
-        final MyRvAdapter adapter=new MyRvAdapter(users,this,
-                FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        addKnownUsers();
 
-        dbRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+//                FirebaseAuth.getInstance().getCurrentUser().getEmail());
 
-                boolean found=false;
+//        dbRef.addChildEventListener(new ChildEventListener() {
+//            @Override
+//            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+//
+//                boolean found=false;
+//
+//                for (String str : friendIDs){
+//                    if (dataSnapshot.getKey().equals(str))
+//                        found=true;
+//                    Log.d("FriendsList:", "retrived key: " +dataSnapshot.getKey());
+//                }
+//
+//                if(found) {
+//                    Log.d("here", "onChildAdded: ");
+//                    users.add(
+//                            dataSnapshot.getValue(Users.class)
+//                    );
+//                    Log.d("here", "onChildAdded: 2");
+//                    adapter.notifyDataSetChanged();
+////                    Log.d(TAG, "onChildAdded: 3");
+//                }
+//            }
+//
+//            @Override
+//            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+//
+//            }
+//
+//            @Override
+//            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+//
+//            }
+//
+//            @Override
+//            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
 
-                for (String str : friendIDs){
-                    if (dataSnapshot.getKey().equals(str))
-                        found=true;
-                    Log.d("FriendsList:", "retrived key: " +dataSnapshot.getKey());
-                }
-
-                if(found) {
-                    Log.d("here", "onChildAdded: ");
-                    users.add(
-                            dataSnapshot.getValue(Users.class)
-                    );
-                    Log.d("here", "onChildAdded: 2");
-                    adapter.notifyDataSetChanged();
-//                    Log.d(TAG, "onChildAdded: 3");
-                }
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-        rv=findViewById(R.id.usersList);
+        rv = findViewById(R.id.usersList);
 //        rv.setHasFixedSize(true);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
@@ -185,5 +206,64 @@ public class UsersActivity extends AppCompatActivity {
 //            this.status = status;
 //        }
 //    }
+
+    void addKnownUsers() {
+        StringRequest req = new StringRequest(
+                Request.Method.POST,
+//                JsonRequest.Method.POST,
+                url + "getFriends.php",
+//                null,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if (response.charAt(0)=='#'){
+                            Log.d("addKnownUsers", "entered: " + response);
+
+                            StringTokenizer stok=new StringTokenizer(response, "#");
+                            String holder="";
+//                            Users u;
+                            while (stok.hasMoreTokens()) {
+                                holder=stok.nextToken();
+                                Log.d("addKnownUsers", "tokn: " + holder);
+                                if (!holder.equals("")) {
+                                    users.add(new Users(holder));
+                                    adapter.notifyDataSetChanged();
+                                }
+                            }
+                        }
+
+                        Log.d("addKnownUsers", "onResponse: " + response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+
+                if (error != null && error.networkResponse != null) {
+                    Toast.makeText(UsersActivity.this,
+                            "ERROR: " + error.getMessage() +
+                                    ", \nResponce: " + error.networkResponse.statusCode +
+                                    ",\nData: " + new String(error.networkResponse.data),
+                            Toast.LENGTH_LONG)
+                            .show();
+                } else {
+                    Toast.makeText(UsersActivity.this, "ERROR: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> map = new HashMap<>();
+                map.put("id", getIntent().getStringExtra("id"));
+//                map.put("myId", myNum);
+                return map;
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(UsersActivity.this);
+
+        requestQueue.add(req);
+    }
 
 }

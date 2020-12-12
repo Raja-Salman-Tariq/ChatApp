@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     /*dummy comment for dummy new branch commit*/
 //    private FirebaseAuth mAuth;
     Button logOutBtn, settingsButton, usersButton, addFrnBtn;
-    String url="http://192.168.1.2/chatapp/isLoggedIn.php";
+    String url="http://192.168.1.2/chatapp/";
 
     String myNum;
 
@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent i=new Intent(MainActivity.this, UsersActivity.class);
+                i.putExtra("id", myNum);
                 startActivity(i);
             }
         });
@@ -133,21 +134,51 @@ public class MainActivity extends AppCompatActivity {
 
             if (c.moveToFirst()){
                 final String numba=c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-//                final String otherUid;
 
-                FirebaseDatabase.getInstance().getReference().child("number-user-map")
-                        .child(numba).addListenerForSingleValueEvent(new ValueEventListener() {
+                StringRequest req=new StringRequest(
+                        Request.Method.POST,
+//                JsonRequest.Method.POST,
+                        url+"addFriend.php",
+//                null,
+                        new Response.Listener<String>() {
                             @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                String otherUid=dataSnapshot.getValue(String.class);
-                                Log.d("Main:AddFriend:Contact", "received numba: "+numba+", otter uid: "+otherUid);
-                            }
+                            public void onResponse(String response) {
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                                Log.d("friendslists", "onResponse: "+response);
                             }
-                        });
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+
+                        if (error != null && error.networkResponse!=null){
+                            Toast.makeText(MainActivity.this,
+                                    "ERROR: " + error.getMessage() +
+                                            ", \nResponce: " + error.networkResponse.statusCode +
+                                            ",\nData: " + new String(error.networkResponse.data),
+                                    Toast.LENGTH_LONG)
+                                    .show();
+                        }
+
+                        else{
+                            Toast.makeText(MainActivity.this, "ERROR: " + error.getMessage(),Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+                )
+                {
+                    @Override
+                    protected Map<String, String> getParams() throws AuthFailureError {
+                        Map<String, String> map=new HashMap<>();
+                        map.put("id",numba);
+                        map.put("myId", myNum);
+                        return map;
+                    }
+                };
+
+                RequestQueue requestQueue= Volley.newRequestQueue(MainActivity.this);
+
+                requestQueue.add(req);
             }else{
                 Log.d("Main:AddFriend:Contact:", "Failed to read contact...");
             }
@@ -161,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
         StringRequest req=new StringRequest(
                 Request.Method.POST,
 //                JsonRequest.Method.POST,
-                url,
+                url+"isLoggedIn.php",
 //                null,
                 new Response.Listener<String>() {
                     @Override

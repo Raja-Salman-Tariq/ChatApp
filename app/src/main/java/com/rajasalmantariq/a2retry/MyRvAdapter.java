@@ -13,6 +13,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -27,7 +30,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MyRvAdapter extends RecyclerView.Adapter<MyRvAdapter.MyViewHolder> {
     List<Users> ls;
     Context c;
-    String usr, email;
+    String usr, email;// email is actually phno.
+    String url="http://192.168.1.2/chatapp/";
 
     public MyRvAdapter(List<Users> ls, Context c, String email) {
         this.c=c;
@@ -46,9 +50,22 @@ public class MyRvAdapter extends RecyclerView.Adapter<MyRvAdapter.MyViewHolder> 
         Log.d("here", "onBindViewHolder: ");
         holder.name.setText(ls.get(position).getName());
         holder.phno.setText(ls.get(position).getNumber());
-        holder.email.setText(ls.get(position).getImage());
-        Picasso.get().load(ls.get(position).getImage()).into(holder.rowDp);
+        holder.email.setText(ls.get(position).getStatus());
+//        Picasso.get().load(ls.get(position).getImage()).into(holder.rowDp);
 
+        if (ls.get(position).getThumbnail().equals("1")) {
+            Glide.with(c).load(url + "imgs/" + holder.phno + ".jpeg")
+                    .apply(RequestOptions.skipMemoryCacheOf(true))
+                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
+                    .into(holder.rowDp);
+        }
+
+        else{
+            Glide.with(c).load(url + "imgs/backup.jpg")
+                    .apply(RequestOptions.skipMemoryCacheOf(true))
+                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
+                    .into(holder.rowDp);
+        }
 //        holder.email.getTextthis().toString()
         if (this.usr==null && holder.email.getText().toString().contentEquals(this.email)){
             usr=holder.name.getText().toString();

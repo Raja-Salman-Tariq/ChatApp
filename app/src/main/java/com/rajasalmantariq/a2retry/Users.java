@@ -1,11 +1,38 @@
 package com.rajasalmantariq.a2retry;
 
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.StringTokenizer;
+
 public class Users {
     String name;
     String image;
     String status;
     String thumbnail;
     String number;
+
+
+    Users(String str){
+        StringTokenizer stok=new StringTokenizer(str, ",");
+
+        if (stok.hasMoreTokens())
+            name=stok.nextToken();
+        if (stok.hasMoreTokens())
+            thumbnail=stok.nextToken();
+        if (stok.hasMoreTokens())
+            status=stok.nextToken();
+        if (stok.hasMoreTokens())
+            number=stok.nextToken();
+        if (stok.hasMoreTokens())
+            image=stok.nextToken();
+
+        Log.d("nusers", "In Users: "+name+thumbnail+status+number+image);
+
+    }
 
     public String getThumbnail() {
         return thumbnail;
